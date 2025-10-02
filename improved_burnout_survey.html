@@ -543,22 +543,22 @@
                     <p>Please confirm you have read and understood the study information:</p>
                     
                     <div class="consent-checkbox">
-                        <input type="checkbox" id="consent1" required>
+                        <input type="checkbox" id="consent1">
                         <label for="consent1">I have read and understood the study information above</label>
                     </div>
                     
                     <div class="consent-checkbox">
-                        <input type="checkbox" id="consent2" required>
+                        <input type="checkbox" id="consent2">
                         <label for="consent2">I understand that my participation is voluntary and I can withdraw at any time</label>
                     </div>
                     
                     <div class="consent-checkbox">
-                        <input type="checkbox" id="consent3" required>
+                        <input type="checkbox" id="consent3">
                         <label for="consent3">I understand that my responses are anonymous and confidential</label>
                     </div>
                     
                     <div class="consent-checkbox">
-                        <input type="checkbox" id="consent4" required>
+                        <input type="checkbox" id="consent4">
                         <label for="consent4">I consent to my anonymized data being used for this quality improvement study</label>
                     </div>
                 </div>
@@ -574,7 +574,7 @@
                 
                 <div class="participant-id">
                     <h3>🔑 Your Unique Participant Code</h3>
-                    <div class="id-code" id="participantCode"></div>
+                    <div class="id-code" id="participantCode">Generate your code below</div>
                     <p class="warning">⚠️ IMPORTANT: Please write this code down or take a screenshot. You will need this code for your follow-up assessment in 2 months.</p>
                 </div>
                 
@@ -586,7 +586,7 @@
                     <h3>Which assessment is this for you?</h3>
                     <div class="options">
                         <div class="option">
-                            <input type="radio" name="studyPhase" value="baseline" id="phase_baseline" required>
+                            <input type="radio" name="studyPhase" value="baseline" id="phase_baseline">
                             <label for="phase_baseline">First Time (Baseline)</label>
                         </div>
                         <div class="option">
@@ -599,7 +599,7 @@
                 <div id="followupCodeEntry" style="display: none;">
                     <div class="question required">
                         <h3>Enter your participant code from the baseline assessment:</h3>
-                        <input type="text" id="existingCode" placeholder="Enter your code (e.g., AB03-15-79)" style="width: 100%; padding: 12px; font-size: 1.2em; border: 2px solid #e0e0e0; border-radius: 8px; font-family: 'Courier New', monospace;">
+                        <input type="text" id="existingCode" placeholder="Enter your code (e.g., AB03-79)" style="width: 100%; padding: 12px; font-size: 1.2em; border: 2px solid #e0e0e0; border-radius: 8px; font-family: 'Courier New', monospace;">
                     </div>
                 </div>
                 
@@ -903,7 +903,7 @@
                 
                 <div class="button-group">
                     <button class="btn btn-secondary" onclick="prevPage()">Back</button>
-                    <button class="btn btn-primary" onclick="nextPage()" id="page4NextBtn">Continue</button>
+                    <button class="btn btn-primary" onclick="nextPage()">Continue</button>
                 </div>
             </div>
             
@@ -1095,7 +1095,7 @@
                 
                 <div class="button-group">
                     <button class="btn btn-secondary" onclick="prevPage()">Back</button>
-                    <button class="btn btn-primary" onclick="nextPage()" id="page5NextBtn">Continue</button>
+                    <button class="btn btn-primary" onclick="nextPage()">Continue</button>
                 </div>
             </div>
             
@@ -1326,7 +1326,7 @@
                 
                 <div class="button-group">
                     <button class="btn btn-secondary" onclick="prevPage()">Back</button>
-                    <button class="btn btn-primary" onclick="nextPage()" id="page6NextBtn">Continue</button>
+                    <button class="btn btn-primary" onclick="nextPage()">Continue</button>
                 </div>
             </div>
             
@@ -1411,7 +1411,6 @@
         let currentPage = 1;
         const totalPages = 7;
         let participantCode = '';
-        let formData = {};
         
         // Update progress bar
         function updateProgress() {
@@ -1524,35 +1523,9 @@
                 return validatePage2();
             }
             
-            // Validate required questions for other pages
-            const currentPageElement = document.getElementById('page' + currentPage);
-            const requiredQuestions = currentPageElement.querySelectorAll('.question.required');
-            
-            for (let question of requiredQuestions) {
-                const inputs = question.querySelectorAll('input[type="radio"], input[type="checkbox"]');
-                const name = inputs[0]?.name;
-                if (name) {
-                    const checked = question.querySelector('input[name="' + name + '"]:checked');
-                    if (!checked) {
-                        alert('Please answer all required questions (marked with *)');
-                        question.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        return false;
-                    }
-                }
-            }
+            // For pages 3-7, no strict validation (demographics optional, feedback optional)
             return true;
         }
-        
-        // Enable next buttons after validation
-        ['page4NextBtn', 'page5NextBtn', 'page6NextBtn'].forEach(btnId => {
-            const btn = document.getElementById(btnId);
-            if (btn) {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    nextPage();
-                });
-            }
-        });
         
         // Collect form data
         function collectFormData() {
@@ -1643,7 +1616,7 @@
                 recommendations = `
                     <h3>✅ Recommended Actions:</h3>
                     <ul>
-                        <li>Continue current self-care practicesâ€"prevention is key</li>
+                        <li>Continue current self-care practices—prevention is key</li>
                         <li>Practice regular stress-relief activities during shifts</li>
                         <li>Support colleagues who may be struggling</li>
                         <li>Maintain healthy boundaries between work and personal life</li>
@@ -1784,7 +1757,33 @@
         
         // Submit assessment
         function submitAssessment() {
-            if (!validateCurrentPage()) {
+            // Validate required burnout questions (Q5-Q26)
+            const requiredQuestions = [
+                'q5_tired', 'q6_physical', 'q7_emotional', 'q8_overwhelmed', 'q9_depleted', 'q10_weak',
+                'q11_work_drained', 'q12_frustrated', 'q13_burnt_out', 'q14_end_exhausted', 
+                'q15_morning_exhausted', 'q16_concentrate', 'q17_time',
+                'q18_patient_difficulty', 'q19_detached', 'q20_positive_impact',
+                'q21_stress_level', 'q22_team_support', 'q23_management_support',
+                'q24_sleep', 'q25_enthusiasm', 'q26_workload'
+            ];
+            
+            let missingQuestions = [];
+            requiredQuestions.forEach(q => {
+                const input = document.querySelector('input[name="' + q + '"]:checked') || 
+                             document.querySelector('input[name="' + q + '"]');
+                if (!input || (input.type === 'radio' && !document.querySelector('input[name="' + q + '"]:checked'))) {
+                    missingQuestions.push(q);
+                }
+            });
+            
+            if (missingQuestions.length > 0) {
+                alert('Please answer all required burnout assessment questions (marked with *) before submitting.\n\nMissing: ' + missingQuestions.length + ' questions');
+                // Scroll to first missing question
+                const firstMissing = missingQuestions[0];
+                const firstMissingElement = document.querySelector('input[name="' + firstMissing + '"]');
+                if (firstMissingElement) {
+                    firstMissingElement.closest('.question').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
                 return;
             }
             
@@ -1807,4 +1806,3 @@
     </script>
 </body>
 </html>
-                            
