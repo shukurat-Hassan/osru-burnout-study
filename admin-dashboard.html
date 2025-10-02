@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSRU Burnout Assessment - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.2em;
+        }
+        
+        .admin-content {
+            padding: 40px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+        }
+        
+        .stat-card h3 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .stat-card p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .risk-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .risk-card {
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .risk-card.green {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .risk-card.amber {
+            background: linear-gradient(135deg, #fc7f00 0%, #ffc107 100%);
+        }
+        
+        .risk-card.red {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        }
+        
+        .risk-card h4 {
+            font-size: 2.5em;
+            margin-bottom: 8px;
+        }
+        
+        .controls-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .controls-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .admin-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+        
+        .admin-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        }
+        
+        .admin-btn.danger {
+            background: #dc3545;
+        }
+        
+        .admin-btn.danger:hover {
+            background: #c82333;
+        }
+        
+        .admin-btn.info {
+            background: #007bff;
+        }
+        
+        .admin-btn.info:hover {
+            background: #0056b3;
+        }
+        
+        .detailed-stats {
+            background: #ffffff;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .detailed-stats h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+        
+        .phase-breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .phase-card {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .phase-card h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .alert {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid;
+            font-weight: bold;
+        }
+        
+        .alert.warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        
+        .alert.danger {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-content {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .admin-btn {
+                min-width: auto;
+            }
+            
+            .phase-breakdown {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ OSRU Admin Dashboard</h1>
+            <p>Burnout Assessment Data Management & Analysis</p>
+        </div>
+        
+        <div class="admin-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalResponses">0</h3>
+                    <p>Total Responses</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="avgBurnoutScore">0</h3>
+                    <p>Avg Burnout Score</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="avgStressLevel">0</h3>
+                    <p>Avg Stress Level</p>
+                </div>
+            </div>
+            
+            <div class="risk-breakdown">
+                <div class="risk-card green">
+                    <h4 id="greenCount">0</h4>
+                    <p>🟢 Green (Low Risk)</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="greenProgress" style="background: #38ef7d; width: 0%;"></div>
+                    </div>
+                    <span id="greenPercent">0%</span>
+                </div>
+                <div class="risk-card amber">
+                    <h4 id="amberCount">0</h4>
+                    <p>🟠 Amber (Moderate Risk)</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="amberProgress" style="background: #ffc107; width: 0%;"></div>
+                    </div>
+                    <span id="amberPercent">0%</span>
+                </div>
+                <div class="risk-card red">
+                    <h4 id="redCount">0</h4>
+                    <p>🔴 Red (High Risk)</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="redProgress" style="background: #ff4b2b; width: 0%;"></div>
+                    </div>
+                    <span id="redPercent">0%</span>
+                </div>
+            </div>
+            
+            <div id="alerts"></div>
+            
+            <div class="phase-breakdown">
+                <div class="phase-card">
+                    <h4>📊 Baseline Data</h4>
+                    <p><span id="baselineCount">0</span> responses</p>
+                    <p><span id="baselinePercent">0%</span> of total</p>
+                </div>
+                <div class="phase-card">
+                    <h4>📈 Follow-up Data</h4>
+                    <p><span id="followupCount">0</span> responses</p>
+                    <p><span id="followupPercent">0%</span> of total</p>
+                </div>
+            </div>
+            
+            <div class="controls-section">
+                <h2>📁 Data Management</h2>
+                <div class="button-group">
+                    <button class="admin-btn" onclick="downloadCSV()">
+                        📥 Download All Data (CSV)
+                    </button>
+                    <button class="admin-btn" onclick="downloadSummaryReport()">
+                        📈 Download Summary Report
+                    </button>
+                    <button class="admin-btn info" onclick="downloadBaselineOnly()">
+                        📊 Download Baseline Only
+                    </button>
+                    <button class="admin-btn info" onclick="downloadFollowupOnly()">
+                        📈 Download Follow-up Only
+                    </button>
+                    <button class="admin-btn danger" onclick="clearAllData()">
+                        🗑️ Clear All Data
+                    </button>
+                </div>
+            </div>
+            
+            <div class="detailed-stats">
+                <h3>📋 Role Breakdown</h3>
+                <table class="data-table" id="roleTable">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Count</th>
+                            <th>Percentage</th>
+                            <th>Avg Burnout Score</th>
+                            <th>Avg Stress Level</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roleTableBody">
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="detailed-stats">
+                <h3>📅 Recent Responses</h3>
+                <table class="data-table" id="recentTable">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Phase</th>
+                            <th>Role</th>
+                            <th>Burnout Score</th>
+                            <th>Stress Level</th>
+                            <th>Risk Category</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load and display data on page load
+        window.onload = function() {
+            updateDashboard();
+        };
+
+        function updateDashboard() {
+            const responses = JSON.parse(localStorage.getItem('osru_responses') || '[]');
+            
+            if (responses.length === 0) {
+                document.getElementById('alerts').innerHTML = `
+                    <div class="alert warning">
+                        ⚠️ No responses collected yet. Share the survey link to begin data collection.
+                    </div>
+                `;
+                return;
+            }
+
+            // Calculate statistics
+            let totalBurnoutScore = 0;
+            let totalStressScore = 0;
+            let greenCount = 0;
+            let amberCount = 0;
+            let redCount = 0;
+            let baselineCount = 0;
+            let followupCount = 0;
+            let roleBreakdown = {};
+
+            responses.forEach(response => {
+                // Calculate burnout score
+                const scoreableQuestions = ['q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q14', 'q15', 'q16'];
+                let burnoutScore = 0;
+                for (let q of scoreableQuestions) {
+                    if (response[q]) burnoutScore += parseInt(response[q]);
+                }
+
+                totalBurnoutScore += burnoutScore;
+                totalStressScore += parseInt(response.q13 || 0);
+
+                // Risk categorization
+                if (burnoutScore >= 11 && burnoutScore <= 18) greenCount++;
+                else if (burnoutScore >= 19 && burnoutScore <= 33) amberCount++;
+                else redCount++;
+
+                // Phase counting
+                if (response.studyPhase === 'baseline') baselineCount++;
+                else if (response.studyPhase === 'followup') followupCount++;
+
+                // Role breakdown
+                const role = response.q1 || 'Unknown';
+                if (!roleBreakdown[role]) {
+                    roleBreakdown[role] = { count: 0, totalBurnout: 0, totalStress: 0 };
+                }
+                roleBreakdown[role].count++;
+                roleBreakdown[role].totalBurnout += burnoutScore;
+                roleBreakdown[role].totalStress += parseInt(response.q13 || 0);
+            });
+
+            // Update main stats
+            document.getElementById('totalResponses').textContent = responses.length;
+            document.getElementById('avgBurnoutScore').textContent = (totalBurnoutScore / responses.length).toFixed(1);
+            document.getElementById('avgStressLevel').textContent = (totalStressScore / responses.length).toFixed(1);
+
+            // Update risk breakdown
+            document.getElementById('greenCount').textContent = greenCount;
+            document.getElementById('amberCount').textContent = amberCount;
+            document.getElementById('redCount').textContent = redCount;
+
+            const greenPercent = ((greenCount / responses.length) * 100).toFixed(1);
+            const amberPercent = ((amberCount / responses.length) * 100).toFixed(1);
+            const redPercent = ((redCount / responses.length) * 100).toFixed(1);
+
+            document.getElementById('greenPercent').textContent = greenPercent + '%';
+            document.getElementById('amberPercent').textContent = amberPercent + '%';
+            document.getElementById('redPercent').textContent = redPercent + '%';
+
+            document.getElementById('greenProgress').style.width = greenPercent + '%';
+            document.getElementById('amberProgress').style.width = amberPercent + '%';
+            document.getElementById('redProgress').style.width = redPercent + '%';
+
+            // Update phase breakdown
+            document.getElementById('baselineCount').textContent = baselineCount;
+            document.getElementById('followupCount').textContent = followupCount;
+            document.getElementById('baselinePercent').textContent = ((baselineCount / responses.length) * 100).toFixed(1);
+            document.getElementById('followupPercent').textContent = ((followupCount / responses.length) * 100).toFixed(1);
+
+            // Generate alerts
+            generateAlerts(responses, redCount, amberCount, totalStressScore);
+
+            // Update role table
+            updateRoleTable(roleBreakdown, responses.length);
+
+            // Update recent responses table
+            updateRecentTable(responses);
+        }
+
+        function generateAlerts(responses, redCount, amberCount, totalStressScore) {
+            const alertsDiv = document.getElementById('alerts');
+            let alerts = '';
+
+            const avgStress = totalStressScore / responses.length;
+
+            if (redCount > 0) {
+                alerts += `
+                    <div class="alert danger">
+                        🚨 URGENT: ${redCount} staff members showing signs of high burnout risk. Immediate intervention recommended.
+                    </div>
+                `;
+            }
+
+            if (amberCount > responses.length * 0.3) {
+                alerts += `
+                    <div class="alert warning">
+                        ⚠️ WARNING: ${((amberCount/responses.length)*100).toFixed(1)}% of staff at moderate burnout risk. Consider preventive measures.
+                    </div>
+                `;
+            }
+
+            if (avgStress > 6) {
+                alerts += `
+                    <div class="alert warning">
+                        📊 High average stress level (${avgStress.toFixed(1)}/10). Ward-wide stress management interventions may be needed.
+                    </div>
+                `;
+            }
+
+            alertsDiv.innerHTML = alerts;
+        }
+
+        function updateRoleTable(roleBreakdown, totalResponses) {
+            const tbody = document.getElementById('roleTableBody');
+            tbody.innerHTML = '';
+
+            Object.entries(roleBreakdown).forEach(([role, data]) => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = role;
+                row.insertCell(1).textContent = data.count;
+                row.insertCell(2).textContent = ((data.count / totalResponses) * 100).toFixed(1) + '%';
+                row.insertCell(3).textContent = (data.totalBurnout / data.count).toFixed(1);
+                row.insertCell(4).textContent = (data.totalStress / data.count).toFixed(1);
+            });
+        }
+
+        function updateRecentTable(responses) {
+            const tbody = document.getElementById('recentTableBody');
+            tbody.innerHTML = '';
+
+            // Sort by timestamp (newest first) and take last 10
+            const recentResponses = responses
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 10);
+
+            recentResponses.forEach(response => {
+                // Calculate burnout score and risk
+                const scoreableQuestions = ['q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q14', 'q15', 'q16'];
+                let burnoutScore = 0;
+                for (let q of scoreableQuestions) {
+                    if (response[q]) burnoutScore += parseInt(response[q]);
+                }
+
+                let riskCategory = 'Green';
+                if (burnoutScore >= 19 && burnoutScore <= 33) riskCategory = 'Amber';
+                else if (burnoutScore > 33) riskCategory = 'Red';
+
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = new Date(response.timestamp).toLocaleString();
+                row.insertCell(1).textContent = response.studyPhase || 'Unknown';
+                row.insertCell(2).textContent = response.q1 || 'Unknown';
+                row.insertCell(3).textContent = burnoutScore;
+                row.insertCell(4).textContent = response.q13 || 'N/A';
+                row.insertCell(5).textContent = riskCategory;
+
+                // Color code risk
+                const riskCell = row.cells[5];
+                if (riskCategory === 'Red') riskCell.style.color = '#dc3545';
+                else if (riskCategory === 'Amber') riskCell.style.color = '#ffc107';
+                else riskCell.style.color = '#28a745';
+            });
+        }
+
+        function downloadCSV() {
+            const responses = JSON.parse(localStorage.getItem('osru_responses') || '[]');
+            if (responses.length === 0) {
+                alert('No responses to download.');
+                return;
+            }
+
+            const headers = [
+                'ID', 'Timestamp', 'Study_Phase', 'Role', 'Employment_Length', 'Shift_Type',
+                'Q4_Emotional_Drain', 'Q5_Sufficient_Time', 'Q6_Positive_Impact', 'Q7_Cynicism',
+                'Q8_Emotionally_Drained', 'Q9_Fatigue', 'Q10_Concentration', 'Q11_Detachment',
+                'Q12_Experiencing_Burnout', 'Q13_Stress_Level', 'Q14_Team_Support', 'Q15_Sleep_Quality',
+                'Q16_Work_Enthusiasm', 'Q17_Stress_Factors', 'Q18_Support_Measures', 'Burnout_Score', 'Risk_Category'
+            ];
+
+            let csvContent = headers.join(',') + '\n';
+
+            responses.forEach(response => {
+                const scoreableQuestions = ['q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q14', 'q15', 'q16'];
+                let burnoutScore = 0;
+                for (let q of scoreableQuestions) {
+                    if (response[q]) burnoutScore += parseInt(response[q]);
+                }
+
+                let riskCategory = 'Green';
+                if (burnoutScore >= 19 && burnoutScore <= 33) riskCategory = 'Amber';
+                else if (burnoutScore > 33) riskCategory = 'Red';
+
+                const row = [
+                    response.id,
+                    response.timestamp,
+                    response.studyPhase || '',
+                    response.q1 || '',
+                    response.q2 || '',
+                    response.q3 || '',
+                    response.q4 || '',
+                    response.q5 || '',
+                    response.q6 || '',
+                    response.q7 || '',
+                    response.q8 || '',
+                    response.q9 || '',
+                    response.q10 || '',
+                    response.q11 || '',
+                    response.q12 || '',
+                    response.q13 || '',
+                    response.q14 || '',
+                    response.q15 || '',
+                    response.q16 || '',
+                    (response.q17 || '').replace(/,/g, ';').replace(/\n/g, ' '),
+                    (response.q18 || '').replace(/,/g, ';').replace(/\n/g, ' '),
+                    burnoutScore,
+                    riskCategory
+                ].map(field => `"${field}"`);
+
+                csvContent += row.join(',') + '\n';
+            });
+
+            downloadFile(csvContent, `OSRU_Burnout_All_Responses_${new Date().toISOString().slice(0, 10)}.csv`, 'text/csv');
+        }
+
+        function downloadBaselineOnly() {
+            const responses = JSON.parse(localStorage.getItem('osru_responses') || '[]');
+            const baselineResponses = responses.filter(r => r.studyPhase === 'baseline');
+            
+            if (baselineResponses.length === 0) {
+                alert('No baseline responses to download.');
+                return;
+            }
+
+            generateCSV(baselineResponses, 'OSRU_Burnout_Baseline_Data');
+        }
+
+        function downloadFollowupOnly() {
+            const responses = JSON.parse(localStorage.getItem('osru_responses') || '[]');
+            const followupResponses = responses.filter(r => r.studyPhase === 'followup');
+            
+            if (followupResponses.length === 0) {
+                alert('No follow-up responses to download.');
+                return;
+            }
+
+            generateCSV(followupResponses, 'OSRU_Burnout_Followup_Data');
+        }
+
+        function generateCSV(responses, filename) {
+            const headers = [
+                'ID', 'Timestamp', 'Study_Phase', 'Role', 'Employment_Length', 'Shift_Type',
+                'Q4_Emotional_Drain', 'Q5_Sufficient_Time', 'Q6_Positive_Impact', 'Q7_Cynicism',
+                'Q8_Emotionally_Drained', 'Q9_Fatigue', 'Q10_Concentration', 'Q11_Detachment',
+                'Q12_Experiencing_Burnout', 'Q13_Stress_Level', 'Q14_Team_Support', 'Q15_Sleep_Quality',
+                'Q16_Work_Enthusiasm', 'Q17_Stress_Factors', 'Q18_Support_Measures', 'Burnout_Score', 'Risk_Category'
+            ];
+
+            let csvContent = headers.join(',') + '\n';
+
+            responses.forEach(response => {
+                const scoreableQuestions = ['q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q14', 'q15', 'q16'];
+                let burnoutScore = 0;
+                for (let q of scoreableQuestions) {
+                    if (response[q]) burnoutScore += parseInt(response[q]);
+                }
+
+                let riskCategory = 'Green';
+                if (burnoutScore >= 19 && burnoutScore <= 33) riskCategory = 'Amber';
+                else if (burnoutScore > 33) riskCategory = 'Red';
+
+                const row = [
+                    response.id,
+                    response.timestamp,
+                    response.studyPhase || '',
+                    response.q1 || '',
+                    response.q2 || '',
+                    response.q3 || '',
+                    response.q4 || '',
+                    response.q5 || '',
+                    response.q6 || '',
+                    response.q7 || '',
+                    response.q8 || '',
+                    response.q9 || '',
+                    response.q10 || '',
+                    response.q11 || '',
+                    response.q12 || '',
+                    response.q13 || '',
+                    response.q14 || '',
+                    response.q15 || '',
+                    response.q16 || '',
+                    (response.q17 || '').replace(/,/g, ';').replace(/\n/g, ' '),
+                    (response.q18 || '').replace(/,/g, ';').replace(/\n/g, ' '),
+                    burnoutScore,
+                    riskCategory
+                ].map(field => `"${field}"`);
+
+                csvContent += row.join(',') + '\n';
+            });
+
+            downloadFile(csvContent, `${filename}_${new Date().toISOString().slice(0, 10)}.csv`, 'text/csv');
+        }
+
+        function downloadSummaryReport() {
+            const responses = JSON.parse(localStorage.getItem('osru_responses') || '[]');
+            if (responses.length === 0) {
+                alert('No responses to analyze.');
+                return;
+            }
+
+            // Calculate comprehensive statistics
+            let totalBurnoutScore = 0;
+            let totalStressScore = 0;
+            let greenCount = 0, amberCount = 0, redCount = 0;
+            let baselineCount = 0, followupCount = 0;
+            let roleBreakdown = {};
+            let shiftBreakdown = {};
+
+            responses.forEach(response => {
+                const scoreableQuestions = ['q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q14', 'q15', 'q16'];
+                let burnoutScore = 0;
+                for (let q of scoreableQuestions) {
+                    if (response[q]) burnoutScore += parseInt(response[q]);
+                }
+
+                totalBurnoutScore += burnoutScore;
+                totalStressScore += parseInt(response.q13 || 0);
+
+                if (burnoutScore >= 11 && burnoutScore <= 18) greenCount++;
+                else if (burnoutScore >= 19 && burnoutScore <= 33) amberCount++;
+                else redCount++;
+
+                if (response.studyPhase === 'baseline') baselineCount++;
+                else if (response.studyPhase === 'followup') followupCount++;
+
+                const role = response.q1 || 'Unknown';
+                roleBreakdown[role] = (roleBreakdown[role] || 0) + 1;
+
+                const shift = response.q3 || 'Unknown';
+                shiftBreakdown[shift] = (shiftBreakdown[shift] || 0) + 1;
+            });
+
+            const avgBurnoutScore = (totalBurnoutScore / responses.length).toFixed(1);
+            const avgStressScore = (totalStressScore / responses.length).toFixed(1);
+
+            const summaryReport = `
+OSRU STAFF BURNOUT ASSESSMENT - COMPREHENSIVE ANALYSIS REPORT
+================================================================
+Generated: ${new Date().toLocaleString()}
+Analysis Period: ${responses.length > 0 ? new Date(responses[0].timestamp).toLocaleDateString() : 'N/A'} - ${responses.length > 0 ? new Date(responses[responses.length-1].timestamp).toLocaleDateString() : 'N/A'}
+
+EXECUTIVE SUMMARY
+================
+Total Responses Collected: ${responses.length}
+Average Burnout Score: ${avgBurnoutScore}/44 (${((avgBurnoutScore/44)*100).toFixed(1)}%)
+Average Stress Level: ${avgStressScore}/10 (${((avgStressScore/10)*100).toFixed(1)}%)
+
+RISK ASSESSMENT BREAKDOWN
+========================
+🟢 Green (Low Risk): ${greenCount} responses (${((greenCount/responses.length)*100).toFixed(1)}%)
+🟠 Amber (Moderate Risk): ${amberCount} responses (${((amberCount/responses.length)*100).toFixed(1)}%)
+🔴 Red (High Risk): ${redCount} responses (${((redCount/responses.length)*100).toFixed(1)}%)
+
+DATA COLLECTION PHASES
+======================
+📊 Baseline Data: ${baselineCount} responses (${((baselineCount/responses.length)*100).toFixed(1)}%)
+📈 Follow-up Data: ${followupCount} responses (${((followupCount/responses.length)*100).toFixed(1)}%)
+
+ROLE DISTRIBUTION
+=================
+${Object.entries(roleBreakdown).map(([role, count]) => 
+`${role}: ${count} responses (${((count/responses.length)*100).toFixed(1)}%)`).join('\n')}
+
+SHIFT PATTERN ANALYSIS
+=====================
+${Object.entries(shiftBreakdown).map(([shift, count]) => 
+`${shift}: ${count} responses (${((count/responses.length)*100).toFixed(1)}%)`).join('\n')}
+
+CRITICAL FINDINGS & RECOMMENDATIONS
+==================================
+${redCount > 0 ? `🚨 URGENT ACTION REQUIRED: ${redCount} staff members (${((redCount/responses.length)*100).toFixed(1)}%) showing HIGH BURNOUT RISK
+   - Immediate individual support and intervention needed
+   - Consider occupational health referrals
+   - Review workload and support systems` : '✅ No staff in high-risk category'}
+
+${amberCount > responses.length * 0.3 ? `⚠️ PREVENTIVE ACTION NEEDED: ${amberCount} staff members (${((amberCount/responses.length)*100).toFixed(1)}%) at MODERATE BURNOUT RISK
+   - Implement stress management workshops
+   - Enhance team support mechanisms
+   - Monitor closely for deterioration` : ''}
+
+${parseFloat(avgStressScore) > 6 ? `📊 ELEVATED STRESS LEVELS: Average stress level (${avgStressScore}/10) indicates ward-wide stress management needed
+   - Consider environmental factors
+   - Review staffing levels and workload distribution
+   - Implement stress reduction initiatives` : ''}
+
+STATISTICAL SIGNIFICANCE
+=======================
+Response Rate Analysis: ${responses.length} total responses
+Data Quality: Complete responses with full burnout assessment
+Confidence Level: Based on validated burnout assessment criteria
+
+NEXT STEPS FOR QI PROJECT
+=========================
+1. ${baselineCount === 0 ? 'Complete baseline data collection' : 'Baseline data collection: COMPLETE'}
+2. ${baselineCount > 0 && followupCount === 0 ? 'Implement targeted interventions based on baseline findings' : followupCount > 0 ? 'Compare baseline vs follow-up data for intervention effectiveness' : 'Plan intervention strategies'}
+3. ${followupCount === 0 ? 'Schedule follow-up data collection after intervention period' : 'Analyze intervention impact and plan sustainability measures'}
+4. Prepare presentation materials for stakeholders
+5. Develop long-term burnout prevention strategy
+
+CONTACT INFORMATION
+==================
+For questions about this analysis or raw data access, contact the QI project lead.
+Data exported from OSRU Burnout Assessment System.
+            `;
+
+            downloadFile(summaryReport, `OSRU_Burnout_Analysis_Report_${new Date().toISOString().slice(0, 10)}.txt`, 'text/plain');
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ WARNING: This will permanently delete ALL response data.\n\nThis action cannot be undone. Are you absolutely sure?')) {
+                if (confirm('Final confirmation: Delete all ' + JSON.parse(localStorage.getItem('osru_responses') || '[]').length + ' responses?')) {
+                    localStorage.removeItem('osru_responses');
+                    alert('All response data has been permanently deleted.');
+                    updateDashboard();
+                }
+            }
+        }
+
+        // Auto-refresh dashboard every 30 seconds
+        setInterval(updateDashboard, 30000);
+    </script>
+</body>
+</html>
