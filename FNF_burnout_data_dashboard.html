@@ -1439,7 +1439,7 @@ Statistical Analysis: Descriptive statistics, pre-post comparison
             
             if (stressors.length === 0) return '(Insufficient data - responses too brief or not provided)';
             
-            return stressors.map((s, i) => `${i + 1}. "${s}${s.length === 100 ? '...' : '"}"`).join('\n');
+            return stressors.map((s, i) => `${i + 1}. "${s}${s.length === 100 ? '...' : ''}"`).join('\n');
         }
         
         // Get top support requests
