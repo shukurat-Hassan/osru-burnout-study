@@ -1804,12 +1804,11 @@
             const scores = calculateScores(data);
             
             // Add scores to data
-            data.scores = scores;
-            data.submittedAt = new Date().toISOString();
-            
-            // Store response
-            storeResponse(data);
-            fetch(GOOGLE_SCRIPT_URL, {
+data.scores = scores;
+data.submittedAt = new Date().toISOString();
+storeResponse(data); // This adds responseId
+
+fetch(GOOGLE_SCRIPT_URL, {
   method: 'POST',
   body: JSON.stringify(data),
   headers: {
