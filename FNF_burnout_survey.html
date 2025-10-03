@@ -1768,67 +1768,76 @@
             console.log('Storage key: osru_burnout_responses');
         }
         
-        // Submit assessment
-        function submitAssessment() {
-            // Validate required burnout questions (Q5-Q26)
-            const requiredQuestions = [
-                'q5_tired', 'q6_physical', 'q7_emotional', 'q8_overwhelmed', 'q9_depleted', 'q10_weak',
-                'q11_work_drained', 'q12_frustrated', 'q13_burnt_out', 'q14_end_exhausted', 
-                'q15_morning_exhausted', 'q16_concentrate', 'q17_time',
-                'q18_patient_difficulty', 'q19_detached', 'q20_positive_impact',
-                'q21_stress_level', 'q22_team_support', 'q23_management_support',
-                'q24_sleep', 'q25_enthusiasm', 'q26_workload'
-            ];
-            
-            let missingQuestions = [];
-            requiredQuestions.forEach(q => {
-                const input = document.querySelector('input[name="' + q + '"]:checked') || 
-                             document.querySelector('input[name="' + q + '"]');
-                if (!input || (input.type === 'radio' && !document.querySelector('input[name="' + q + '"]:checked'))) {
-                    missingQuestions.push(q);
-                }
-            });
-            
-            if (missingQuestions.length > 0) {
-                alert('Please answer all required burnout assessment questions (marked with *) before submitting.\n\nMissing: ' + missingQuestions.length + ' questions');
-                // Scroll to first missing question
-                const firstMissing = missingQuestions[0];
-                const firstMissingElement = document.querySelector('input[name="' + firstMissing + '"]');
-                if (firstMissingElement) {
-                    firstMissingElement.closest('.question').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                return;
-            }
-            
-            const data = collectFormData();
-            const scores = calculateScores(data);
-            
-            // Add scores to data
-data.scores = scores;
-data.submittedAt = new Date().toISOString();
-storeResponse(data); // This adds responseId
-
-fetch(GOOGLE_SCRIPT_URL, {
-  method: 'POST',
-  body: JSON.stringify(data),
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
-.then(response => {
-  if (response.ok) {
-    console.log('✅ Data sent to Google Sheets');
-  } else {
-    console.error('❌ Failed to send data');
-  }
-})
-.catch(error => {
-  console.error('❌ Error sending data:', error);
-});
-
-            // Display results
-            displayResults(scores, data);
+ // Submit assessment
+function submitAssessment() {
+    // Validate required burnout questions (Q5-Q26)
+    const requiredQuestions = [
+        'q5_tired', 'q6_physical', 'q7_emotional', 'q8_overwhelmed', 'q9_depleted', 'q10_weak',
+        'q11_work_drained', 'q12_frustrated', 'q13_burnt_out', 'q14_end_exhausted', 
+        'q15_morning_exhausted', 'q16_concentrate', 'q17_time',
+        'q18_patient_difficulty', 'q19_detached', 'q20_positive_impact',
+        'q21_stress_level', 'q22_team_support', 'q23_management_support',
+        'q24_sleep', 'q25_enthusiasm', 'q26_workload'
+    ];
+    
+    let missingQuestions = [];
+    requiredQuestions.forEach(q => {
+        const input = document.querySelector('input[name="' + q + '"]:checked') || 
+                     document.querySelector('input[name="' + q + '"]');
+        if (!input || (input.type === 'radio' && !document.querySelector('input[name="' + q + '"]:checked'))) {
+            missingQuestions.push(q);
         }
+    });
+    
+    if (missingQuestions.length > 0) {
+        alert('Please answer all required burnout assessment questions (marked with *) before submitting.\n\nMissing: ' + missingQuestions.length + ' questions');
+        const firstMissing = missingQuestions[0];
+        const firstMissingElement = document.querySelector('input[name="' + firstMissing + '"]');
+        if (firstMissingElement) {
+            firstMissingElement.closest('.question').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+    }
+    
+    // Collect form data
+    const data = collectFormData();
+    const scores = calculateScores(data);
+    
+    // Add scores and metadata
+    data.scores = scores;
+    data.submittedAt = new Date().toISOString();
+    data.responseId = 'RESP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    // Store in localStorage as backup
+    let responses = JSON.parse(localStorage.getItem('osru_burnout_responses') || '[]');
+    responses.push(data);
+    localStorage.setItem('osru_burnout_responses', JSON.stringify(responses));
+    
+    console.log('✅ Response stored in localStorage');
+    console.log('Response ID:', data.responseId);
+    console.log('📤 Sending to Google Sheets...');
+    
+    // Send to Google Sheets
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(() => {
+        console.log('✅ Data sent to Google Sheets successfully!');
+        console.log('Note: Due to no-cors mode, we cannot verify the response, but data should be saved.');
+    })
+    .catch(error => {
+        console.error('❌ Error sending to Google Sheets:', error);
+        console.log('⚠️ Data is still saved in localStorage as backup');
+    });
+    
+    // Display results immediately (don't wait for Google Sheets)
+    displayResults(scores, data);
+}
         
         // Initialize
         updateProgress();
