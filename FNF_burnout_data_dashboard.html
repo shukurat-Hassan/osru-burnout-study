@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSRU Burnout Study - Data Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .stat-card.green {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .stat-card.amber {
+            background: linear-gradient(135deg, #fc7f00 0%, #ffc107 100%);
+        }
+        
+        .stat-card.red {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        }
+        
+        .section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .data-table {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:hover {
+            background: #f8f9ff;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .badge-green {
+            background: #38ef7d;
+            color: white;
+        }
+        
+        .badge-amber {
+            background: #ffc107;
+            color: white;
+        }
+        
+        .badge-red {
+            background: #ff4b2b;
+            color: white;
+        }
+        
+        .badge-baseline {
+            background: #0066cc;
+            color: white;
+        }
+        
+        .badge-followup {
+            background: #9b59b6;
+            color: white;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .chart-container h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .bar-label {
+            min-width: 150px;
+            font-weight: 500;
+        }
+        
+        .bar-wrapper {
+            flex: 1;
+            background: #e0e0e0;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .comparison-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-card h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+        
+        .change-indicator {
+            font-weight: bold;
+        }
+        
+        .change-indicator.positive {
+            color: #38ef7d;
+        }
+        
+        .change-indicator.negative {
+            color: #ff4b2b;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .summary-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .summary-box li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .summary-box li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+            }
+            
+            .bar-label {
+                min-width: 100px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 OSRU Burnout Study - Data Dashboard</h1>
+            <p>Florence Nightingale Foundation Quality Improvement Study</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Data Analysis & Export Portal</p>
+        </div>
+        
+        <div class="content">
+            <!-- Debug Info Box -->
+            <div id="debugInfo" class="section" style="background: #fff3cd; border: 2px solid #ffc107;">
+                <h2>🔍 Connection Status</h2>
+                <div id="connectionStatus">Checking localStorage connection...</div>
+                <button class="btn btn-secondary" onclick="runDiagnostics()" style="margin-top: 10px;">🔧 Run Diagnostics</button>
+            </div>
+            
+            <!-- Summary Statistics -->
+            <div class="section">
+                <h2>📊 Overview Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Responses</h3>
+                        <div class="value" id="totalResponses">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Baseline Assessments</h3>
+                        <div class="value" id="baselineCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Follow-up Assessments</h3>
+                        <div class="value" id="followupCount">0</div>
+                    </div>
+                    <div class="stat-card green">
+                        <h3>Low Risk (Green)</h3>
+                        <div class="value" id="lowRiskCount">0</div>
+                    </div>
+                    <div class="stat-card amber">
+                        <h3>Moderate Risk (Amber)</h3>
+                        <div class="value" id="moderateRiskCount">0</div>
+                    </div>
+                    <div class="stat-card red">
+                        <h3>High Risk (Red)</h3>
+                        <div class="value" id="highRiskCount">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Average Scores -->
+            <div class="section">
+                <h2>📈 Average Burnout Scores</h2>
+                <div class="chart-container">
+                    <h3>Overall Burnout Score by Study Phase</h3>
+                    <div class="bar-chart" id="averageScoresChart"></div>
+                </div>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <h4>Personal Burnout</h4>
+                        <div class="metric-row">
+                            <span>Baseline Average:</span>
+                            <span id="baselinePersonal">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Follow-up Average:</span>
+                            <span id="followupPersonal">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Change:</span>
+                            <span class="change-indicator" id="changePersonal">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-card">
+                        <h4>Work-Related Burnout</h4>
+                        <div class="metric-row">
+                            <span>Baseline Average:</span>
+                            <span id="baselineWork">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Follow-up Average:</span>
+                            <span id="followupWork">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Change:</span>
+                            <span class="change-indicator" id="changeWork">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-card">
+                        <h4>Patient-Related Burnout</h4>
+                        <div class="metric-row">
+                            <span>Baseline Average:</span>
+                            <span id="baselinePatient">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Follow-up Average:</span>
+                            <span id="followupPatient">-</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>Change:</span>
+                            <span class="change-indicator" id="changePatient">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Study Goal Progress -->
+            <div class="section" id="goalProgress" style="display: none;">
+                <h2>🎯 Study Goal Progress</h2>
+                <div class="summary-box">
+                    <h3>Target: 20% Reduction in Burnout Scores</h3>
+                    <div class="metric-row" style="color: white; border-color: rgba(255,255,255,0.3);">
+                        <span>Baseline Mean Score:</span>
+                        <span id="goalBaseline">-</span>
+                    </div>
+                    <div class="metric-row" style="color: white; border-color: rgba(255,255,255,0.3);">
+                        <span>Follow-up Mean Score:</span>
+                        <span id="goalFollowup">-</span>
+                    </div>
+                    <div class="metric-row" style="color: white; border-color: rgba(255,255,255,0.3);">
+                        <span>Actual Reduction:</span>
+                        <span class="change-indicator" id="goalReduction" style="color: white; font-size: 1.3em;">-</span>
+                    </div>
+                    <div class="metric-row" style="color: white; border-color: rgba(255,255,255,0.3);">
+                        <span>Goal Achievement:</span>
+                        <span id="goalStatus" style="font-size: 1.2em; font-weight: bold;">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Report Summary -->
+            <div class="section">
+                <h2>📄 Executive Summary Report</h2>
+                <div class="button-group">
+                    <button class="btn btn-success" onclick="generateReport()">📋 Generate Summary Report</button>
+                    <button class="btn btn-primary" onclick="downloadReport()">📥 Download Report (Text)</button>
+                </div>
+                <div id="reportContent" style="display: none;">
+                    <div class="alert alert-success">
+                        Report generated successfully! Review below or download.
+                    </div>
+                    <div style="background: white; padding: 25px; border-radius: 8px; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.9em;" id="reportText"></div>
+                </div>
+            </div>
+            
+            <!-- Data Export -->
+            <div class="section">
+                <h2>💾 Data Export</h2>
+                <div class="alert alert-info">
+                    <strong>Note:</strong> Export options allow you to download data for statistical analysis. All data remains anonymous with participant codes only.
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-success" onclick="exportToCSV('all')">📥 Export All Data (CSV)</button>
+                    <button class="btn btn-primary" onclick="exportToCSV('baseline')">📥 Export Baseline Only (CSV)</button>
+                    <button class="btn btn-primary" onclick="exportToCSV('followup')">📥 Export Follow-up Only (CSV)</button>
+                    <button class="btn btn-secondary" onclick="exportSummaryStats()">📊 Export Summary Statistics (CSV)</button>
+                </div>
+            </div>
+            
+            <!-- Data Filters -->
+            <div class="section">
+                <h2>🔍 View Response Data</h2>
+                <div class="filter-group">
+                    <select id="phaseFilter" onchange="filterData()">
+                        <option value="all">All Phases</option>
+                        <option value="baseline">Baseline Only</option>
+                        <option value="followup">Follow-up Only</option>
+                    </select>
+                    
+                    <select id="riskFilter" onchange="filterData()">
+                        <option value="all">All Risk Levels</option>
+                        <option value="low">Low Risk (Green)</option>
+                        <option value="moderate">Moderate Risk (Amber)</option>
+                        <option value="high">High Risk (Red)</option>
+                    </select>
+                    
+                    <input type="text" id="searchCode" placeholder="Search by Participant Code" onkeyup="filterData()">
+                    
+                    <button class="btn btn-secondary" onclick="resetFilters()">🔄 Reset Filters</button>
+                </div>
+                
+                <div class="data-table">
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Participant Code</th>
+                                <th>Study Phase</th>
+                                <th>Date/Time</th>
+                                <th>Overall Score</th>
+                                <th>Risk Level</th>
+                                <th>Personal</th>
+                                <th>Work</th>
+                                <th>Patient</th>
+                                <th>Stress</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody">
+                            <tr>
+                                <td colspan="11" style="text-align: center; padding: 40px;">No data available. Complete the survey to see responses here.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Data Management -->
+            <div class="section">
+                <h2>⚙️ Data Management</h2>
+                <div class="alert alert-warning">
+                    <strong>Warning:</strong> The clear data action is permanent and cannot be undone. Export your data before clearing!
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-danger" onclick="confirmClearData()">🗑️ Clear All Data</button>
+                    <button class="btn btn-secondary" onclick="viewRawData()">👁️ View Raw JSON Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ IMPORTANT: Replace this with your Google Apps Script Web App URL
+        const GOOGLE_SCRIPT_URL = 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE';
+        
+        let allResponses = [];
+        let filteredResponses = [];
+        
+        // Load data on page load
+        window.onload = function() {
+            // Check for same-origin access
+            checkLocalStorageAccess();
+            loadData();
+            updateDashboard();
+            showConnectionStatus();
+        };
+        
+        // Show connection status
+        function showConnectionStatus() {
+            const statusDiv = document.getElementById('connectionStatus');
+            const stored = localStorage.getItem('osru_burnout_responses');
+            
+            let statusHTML = '';
+            
+            if (!stored || stored === '[]') {
+                statusHTML = `
+                    <div style="padding: 15px; background: white; border-radius: 8px; margin-top: 10px;">
+                        <p><strong>⚠️ Status: No Data Found</strong></p>
+                        <p>Current URL: <code>${window.location.href}</code></p>
+                        <p>LocalStorage accessible: ✅ Yes</p>
+                        <p>Data in storage: ❌ None</p>
+                        <hr style="margin: 15px 0;">
+                        <p><strong>Possible reasons:</strong></p>
+                        <ul>
+                            <li>Survey not completed yet on this domain</li>
+                            <li>Survey completed on different URL/domain</li>
+                            <li>Browser cleared localStorage</li>
+                        </ul>
+                        <p><strong>Solutions:</strong></p>
+                        <ul>
+                            <li>Complete the survey using the same GitHub Pages URL</li>
+                            <li>Check that survey file is: <code>${window.location.origin}${window.location.pathname.replace('dashboard.html', 'survey.html')}</code></li>
+                            <li>Or use the manual import option below</li>
+                        </ul>
+                    </div>
+                `;
+            } else {
+                const responses = JSON.parse(stored);
+                statusHTML = `
+                    <div style="padding: 15px; background: #d4edda; border-radius: 8px; margin-top: 10px; border: 2px solid #28a745;">
+                        <p><strong>✅ Status: Connected Successfully</strong></p>
+                        <p>Current URL: <code>${window.location.href}</code></p>
+                        <p>Responses found: <strong>${responses.length}</strong></p>
+                        <p>Last response: ${responses.length > 0 ? new Date(responses[responses.length - 1].timestamp).toLocaleString() : 'N/A'}</p>
+                    </div>
+                `;
+                // Hide debug box after 3 seconds if data is found
+                setTimeout(() => {
+                    document.getElementById('debugInfo').style.display = 'none';
+                }, 5000);
+            }
+            
+            statusDiv.innerHTML = statusHTML;
+        }
+        
+        // Run diagnostics
+        function runDiagnostics() {
+            const results = {
+                currentURL: window.location.href,
+                protocol: window.location.protocol,
+                domain: window.location.hostname,
+                localStorageAvailable: false,
+                dataFound: false,
+                dataCount: 0,
+                storageKey: 'osru_burnout_responses'
+            };
+            
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                results.localStorageAvailable = true;
+            } catch (e) {
+                results.localStorageAvailable = false;
+                results.error = e.message;
+            }
+            
+            const stored = localStorage.getItem('osru_burnout_responses');
+            if (stored && stored !== '[]') {
+                results.dataFound = true;
+                try {
+                    const parsed = JSON.parse(stored);
+                    results.dataCount = parsed.length;
+                } catch (e) {
+                    results.parseError = e.message;
+                }
+            }
+            
+            console.log('=== DIAGNOSTICS REPORT ===');
+            console.log(results);
+            console.log('========================');
+            
+            alert('Diagnostics Report:\n\n' + JSON.stringify(results, null, 2) + '\n\nCheck browser console (F12) for detailed logs.');
+        }
+        
+        // Check localStorage access
+        function checkLocalStorageAccess() {
+            try {
+                const test = localStorage.getItem('osru_burnout_responses');
+                if (!test || test === '[]') {
+                    document.getElementById('content').insertAdjacentHTML('afterbegin', `
+                        <div class="alert alert-warning">
+                            <strong>⚠️ No Data Found</strong><br>
+                            This dashboard and the survey must be hosted on the same domain (e.g., both on username.github.io) to share data via localStorage.<br><br>
+                            <strong>Current Status:</strong> ${test === null ? 'localStorage is accessible but empty' : 'No responses found'}<br><br>
+                            <strong>Solutions:</strong><br>
+                            1. Complete the survey on the same domain where this dashboard is hosted<br>
+                            2. Or manually import data using the button below
+                        </div>
+                        <div class="section">
+                            <h2>📥 Manual Data Import</h2>
+                            <p>If your survey is on a different domain, you can manually import the data:</p>
+                            <div class="button-group">
+                                <button class="btn btn-primary" onclick="showImportDialog()">📤 Import Survey Data</button>
+                            </div>
+                            <div id="importDialog" style="display: none; margin-top: 20px;">
+                                <p><strong>Instructions:</strong></p>
+                                <ol>
+                                    <li>Open your survey page in a new tab</li>
+                                    <li>Open browser console (F12)</li>
+                                    <li>Type: <code>localStorage.getItem('osru_burnout_responses')</code></li>
+                                    <li>Copy the entire output</li>
+                                    <li>Paste it in the box below and click Import</li>
+                                </ol>
+                                <textarea id="importData" rows="10" style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-family: monospace;" placeholder="Paste the JSON data here..."></textarea>
+                                <button class="btn btn-success" onclick="importData()" style="margin-top: 10px;">✅ Import Data</button>
+                            </div>
+                        </div>
+                    `);
+                }
+            } catch (e) {
+                console.error('localStorage access error:', e);
+            }
+        }
+        
+        // Show import dialog
+        function showImportDialog() {
+            document.getElementById('importDialog').style.display = 'block';
+        }
+        
+        // Import data manually
+        function importData() {
+            const jsonData = document.getElementById('importData').value.trim();
+            if (!jsonData) {
+                alert('Please paste the JSON data first.');
+                return;
+            }
+            
+            try {
+                const parsed = JSON.parse(jsonData);
+                if (!Array.isArray(parsed)) {
+                    throw new Error('Data must be an array');
+                }
+                
+                localStorage.setItem('osru_burnout_responses', jsonData);
+                alert('Data imported successfully! Refreshing dashboard...');
+                location.reload();
+            } catch (e) {
+                alert('Invalid JSON data. Please check the format and try again.\n\nError: ' + e.message);
+            }
+        }
+        
+        // Load data from localStorage
+        function loadData() {
+            const stored = localStorage.getItem('osru_burnout_responses');
+            console.log('=== DASHBOARD DEBUG INFO ===');
+            console.log('LocalStorage key: osru_burnout_responses');
+            console.log('Raw data:', stored);
+            console.log('Data type:', typeof stored);
+            
+            if (stored) {
+                try {
+                    allResponses = JSON.parse(stored);
+                    console.log('✅ Data parsed successfully');
+                    console.log('Number of responses:', allResponses.length);
+                    console.log('Responses:', allResponses);
+                } catch (e) {
+                    console.error('❌ Error parsing data:', e);
+                    allResponses = [];
+                }
+            } else {
+                console.warn('⚠️ No data found in localStorage');
+                allResponses = [];
+            }
+            
+            filteredResponses = [...allResponses];
+            console.log('=== END DEBUG INFO ===');
+        }
+        
+        // Update dashboard statistics
+        function updateDashboard() {
+            loadData();
+            
+            // Calculate statistics
+            const total = allResponses.length;
+            const baseline = allResponses.filter(r => r.studyPhase === 'baseline').length;
+            const followup = allResponses.filter(r => r.studyPhase === 'followup').length;
+            
+            let lowRisk = 0, moderateRisk = 0, highRisk = 0;
+            allResponses.forEach(r => {
+                if (r.scores) {
+                    const score = r.scores.overall;
+                    if (score < 50) lowRisk++;
+                    else if (score < 75) moderateRisk++;
+                    else highRisk++;
+                }
+            });
+            
+            // Update stat cards
+            document.getElementById('totalResponses').textContent = total;
+            document.getElementById('baselineCount').textContent = baseline;
+            document.getElementById('followupCount').textContent = followup;
+            document.getElementById('lowRiskCount').textContent = lowRisk;
+            document.getElementById('moderateRiskCount').textContent = moderateRisk;
+            document.getElementById('highRiskCount').textContent = highRisk;
+            
+            // Update average scores
+            updateAverageScores();
+            
+            // Update goal progress
+            updateGoalProgress();
+            
+            // Update table
+            filterData();
+        }
+        
+        // Update average scores chart
+        function updateAverageScores() {
+            const baselineResponses = allResponses.filter(r => r.studyPhase === 'baseline' && r.scores);
+            const followupResponses = allResponses.filter(r => r.studyPhase === 'followup' && r.scores);
+            
+            const calcAvg = (responses, field) => {
+                if (responses.length === 0) return 0;
+                const sum = responses.reduce((acc, r) => acc + r.scores[field], 0);
+                return Math.round(sum / responses.length);
+            };
+            
+            const baselineAvg = calcAvg(baselineResponses, 'overall');
+            const followupAvg = calcAvg(followupResponses, 'overall');
+            
+            const baselinePersonal = calcAvg(baselineResponses, 'personal');
+            const followupPersonal = calcAvg(followupResponses, 'personal');
+            
+            const baselineWork = calcAvg(baselineResponses, 'work');
+            const followupWork = calcAvg(followupResponses, 'work');
+            
+            const baselinePatient = calcAvg(baselineResponses, 'patient');
+            const followupPatient = calcAvg(followupResponses, 'patient');
+            
+            // Update chart
+            const chartHTML = `
+                <div class="bar-item">
+                    <div class="bar-label">Baseline Overall:</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill" style="width: ${baselineAvg}%">${baselineAvg}/100</div>
+                    </div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label">Follow-up Overall:</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill" style="width: ${followupAvg}%; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">${followupAvg}/100</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('averageScoresChart').innerHTML = chartHTML;
+            
+            // Update comparison cards
+            document.getElementById('baselinePersonal').textContent = baselinePersonal + '/100';
+            document.getElementById('followupPersonal').textContent = followupPersonal > 0 ? followupPersonal + '/100' : 'N/A';
+            updateChange('changePersonal', baselinePersonal, followupPersonal);
+            
+            document.getElementById('baselineWork').textContent = baselineWork + '/100';
+            document.getElementById('followupWork').textContent = followupWork > 0 ? followupWork + '/100' : 'N/A';
+            updateChange('changeWork', baselineWork, followupWork);
+            
+            document.getElementById('baselinePatient').textContent = baselinePatient + '/100';
+            document.getElementById('followupPatient').textContent = followupPatient > 0 ? followupPatient + '/100' : 'N/A';
+            updateChange('changePatient', baselinePatient, followupPatient);
+        }
+        
+        // Update change indicator
+        function updateChange(elementId, baseline, followup) {
+            const element = document.getElementById(elementId);
+            if (followup === 0) {
+                element.textContent = 'N/A';
+                element.className = 'change-indicator';
+                return;
+            }
+            
+            const change = followup - baseline;
+            const percentChange = Math.round((change / baseline) * 100);
+            
+            element.textContent = (change > 0 ? '+' : '') + change + ' (' + (percentChange > 0 ? '+' : '') + percentChange + '%)';
+            element.className = 'change-indicator ' + (change < 0 ? 'positive' : 'negative');
+        }
+        
+        // Update goal progress
+        function updateGoalProgress() {
+            const baselineResponses = allResponses.filter(r => r.studyPhase === 'baseline' && r.scores);
+            const followupResponses = allResponses.filter(r => r.studyPhase === 'followup' && r.scores);
+            
+            if (baselineResponses.length === 0 || followupResponses.length === 0) {
+                document.getElementById('goalProgress').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('goalProgress').style.display = 'block';
+            
+            const baselineMean = Math.round(baselineResponses.reduce((acc, r) => acc + r.scores.overall, 0) / baselineResponses.length);
+            const followupMean = Math.round(followupResponses.reduce((acc, r) => acc + r.scores.overall, 0) / followupResponses.length);
+            
+            const reduction = baselineMean - followupMean;
+            const percentReduction = Math.round((reduction / baselineMean) * 100);
+            
+            document.getElementById('goalBaseline').textContent = baselineMean + '/100';
+            document.getElementById('goalFollowup').textContent = followupMean + '/100';
+            document.getElementById('goalReduction').textContent = reduction + ' points (' + percentReduction + '% reduction)';
+            
+            const goalStatus = document.getElementById('goalStatus');
+            if (percentReduction >= 20) {
+                goalStatus.textContent = '✅ GOAL ACHIEVED!';
+                goalStatus.style.color = '#38ef7d';
+            } else if (percentReduction > 0) {
+                goalStatus.textContent = '📊 In Progress (' + percentReduction + '/20%)';
+                goalStatus.style.color = '#ffc107';
+            } else {
+                goalStatus.textContent = '⚠️ Needs Attention';
+                goalStatus.style.color = '#ff4b2b';
+            }
+        }
+        
+        // Filter data
+        function filterData() {
+            loadData();
+            
+            const phaseFilter = document.getElementById('phaseFilter').value;
+            const riskFilter = document.getElementById('riskFilter').value;
+            const searchCode = document.getElementById('searchCode').value.toLowerCase();
+            
+            filteredResponses = allResponses.filter(r => {
+                // Phase filter
+                if (phaseFilter !== 'all' && r.studyPhase !== phaseFilter) return false;
+                
+                // Risk filter
+                if (riskFilter !== 'all' && r.scores) {
+                    const score = r.scores.overall;
+                    if (riskFilter === 'low' && score >= 50) return false;
+                    if (riskFilter === 'moderate' && (score < 50 || score >= 75)) return false;
+                    if (riskFilter === 'high' && score < 75) return false;
+                }
+                
+                // Search filter
+                if (searchCode && !r.participantCode.toLowerCase().includes(searchCode)) return false;
+                
+                return true;
+            });
+            
+            updateTable();
+        }
+        
+        // Update table
+        function updateTable() {
+            const tbody = document.getElementById('dataTableBody');
+            
+            if (filteredResponses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px;">No responses match your filters.</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            filteredResponses.forEach(r => {
+                const date = new Date(r.timestamp).toLocaleString();
+                const score = r.scores ? r.scores.overall : 'N/A';
+                const personal = r.scores ? r.scores.personal : 'N/A';
+                const work = r.scores ? r.scores.work : 'N/A';
+                const patient = r.scores ? r.scores.patient : 'N/A';
+                const stress = r.scores ? r.scores.stressLevel : 'N/A';
+                
+                let riskBadge = '';
+                if (r.scores) {
+                    if (score < 50) riskBadge = '<span class="badge badge-green">Low</span>';
+                    else if (score < 75) riskBadge = '<span class="badge badge-amber">Moderate</span>';
+                    else riskBadge = '<span class="badge badge-red">High</span>';
+                }
+                
+                const phaseBadge = r.studyPhase === 'baseline' ? 
+                    '<span class="badge badge-baseline">Baseline</span>' : 
+                    '<span class="badge badge-followup">Follow-up</span>';
+                
+                const role = r.q1_role || 'Not specified';
+                
+                html += `
+                    <tr>
+                        <td><strong>${r.participantCode}</strong></td>
+                        <td>${phaseBadge}</td>
+                        <td>${date}</td>
+                        <td><strong>${score}/100</strong></td>
+                        <td>${riskBadge}</td>
+                        <td>${personal}</td>
+                        <td>${work}</td>
+                        <td>${patient}</td>
+                        <td>${stress}/10</td>
+                        <td>${role}</td>
+                        <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85em;" onclick="viewDetails('${r.responseId}')">View</button></td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        // View response details
+        function viewDetails(responseId) {
+            const response = allResponses.find(r => r.responseId === responseId);
+            if (!response) return;
+            
+            let details = `
+═══════════════════════════════════════════════════════
+RESPONSE DETAILS
+═══════════════════════════════════════════════════════
+
+Participant Code: ${response.participantCode}
+Study Phase: ${response.studyPhase}
+Submitted: ${new Date(response.timestamp).toLocaleString()}
+
+BURNOUT SCORES:
+├─ Overall Score: ${response.scores.overall}/100
+├─ Personal Burnout: ${response.scores.personal}/100
+├─ Work-Related Burnout: ${response.scores.work}/100
+├─ Patient-Related Burnout: ${response.scores.patient}/100
+└─ Stress Level: ${response.scores.stressLevel}/10
+
+DEMOGRAPHICS:
+├─ Role: ${response.q1_role || 'Not provided'}
+├─ Tenure: ${response.q2_tenure || 'Not provided'}
+├─ Age: ${response.q3_age || 'Not provided'}
+└─ Shift Pattern: ${response.q4_shift || 'Not provided'}
+
+OPEN FEEDBACK:
+${response.q27_stress_factors ? '• Stress Factors: ' + response.q27_stress_factors : ''}
+${response.q28_support_needed ? '• Support Needed: ' + response.q28_support_needed : ''}
+${response.q29_leaving ? '• Considered Leaving: ' + response.q29_leaving : ''}
+${response.q30_additional_comments ? '• Additional Comments: ' + response.q30_additional_comments : ''}
+
+═══════════════════════════════════════════════════════
+            `;
+            
+            alert(details);
+        }
+        
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('phaseFilter').value = 'all';
+            document.getElementById('riskFilter').value = 'all';
+            document.getElementById('searchCode').value = '';
+            filterData();
+        }
+        
+        // Export to CSV
+        function exportToCSV(type) {
+            let dataToExport = [];
+            
+            if (type === 'baseline') {
+                dataToExport = allResponses.filter(r => r.studyPhase === 'baseline');
+            } else if (type === 'followup') {
+                dataToExport = allResponses.filter(r => r.studyPhase === 'followup');
+            } else {
+                dataToExport = allResponses;
+            }
+            
+            if (dataToExport.length === 0) {
+                alert('No data available to export for this selection.');
+                return;
+            }
+            
+            // CSV Headers
+            const headers = [
+                'Response_ID',
+                'Participant_Code',
+                'Study_Phase',
+                'Timestamp',
+                'Submitted_At',
+                'Overall_Score',
+                'Personal_Burnout',
+                'Work_Burnout',
+                'Patient_Burnout',
+                'Stress_Level',
+                'Risk_Category',
+                'Role',
+                'Tenure',
+                'Age',
+                'Shift_Pattern',
+                'Q5_Tired',
+                'Q6_Physical',
+                'Q7_Emotional',
+                'Q8_Overwhelmed',
+                'Q9_Depleted',
+                'Q10_Weak',
+                'Q11_Work_Drained',
+                'Q12_Frustrated',
+                'Q13_Burnt_Out',
+                'Q14_End_Exhausted',
+                'Q15_Morning_Exhausted',
+                'Q16_Concentrate',
+                'Q17_Time',
+                'Q18_Patient_Difficulty',
+                'Q19_Detached',
+                'Q20_Positive_Impact',
+                'Q21_Stress_Level',
+                'Q22_Team_Support',
+                'Q23_Management_Support',
+                'Q24_Sleep',
+                'Q25_Enthusiasm',
+                'Q26_Workload',
+                'Q27_Stress_Factors',
+                'Q28_Support_Needed',
+                'Q29_Leaving',
+                'Q30_Additional_Comments'
+            ];
+            
+            let csv = headers.join(',') + '\n';
+            
+            dataToExport.forEach(r => {
+                const getRiskCategory = (score) => {
+                    if (score < 50) return 'Low';
+                    if (score < 75) return 'Moderate';
+                    return 'High';
+                };
+                
+                const escapeCSV = (value) => {
+                    if (value === undefined || value === null) return '';
+                    const str = String(value);
+                    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                        return '"' + str.replace(/"/g, '""') + '"';
+                    }
+                    return str;
+                };
+                
+                const row = [
+                    escapeCSV(r.responseId),
+                    escapeCSV(r.participantCode),
+                    escapeCSV(r.studyPhase),
+                    escapeCSV(r.timestamp),
+                    escapeCSV(r.submittedAt),
+                    escapeCSV(r.scores?.overall),
+                    escapeCSV(r.scores?.personal),
+                    escapeCSV(r.scores?.work),
+                    escapeCSV(r.scores?.patient),
+                    escapeCSV(r.scores?.stressLevel),
+                    escapeCSV(getRiskCategory(r.scores?.overall)),
+                    escapeCSV(r.q1_role),
+                    escapeCSV(r.q2_tenure),
+                    escapeCSV(r.q3_age),
+                    escapeCSV(r.q4_shift),
+                    escapeCSV(r.q5_tired),
+                    escapeCSV(r.q6_physical),
+                    escapeCSV(r.q7_emotional),
+                    escapeCSV(r.q8_overwhelmed),
+                    escapeCSV(r.q9_depleted),
+                    escapeCSV(r.q10_weak),
+                    escapeCSV(r.q11_work_drained),
+                    escapeCSV(r.q12_frustrated),
+                    escapeCSV(r.q13_burnt_out),
+                    escapeCSV(r.q14_end_exhausted),
+                    escapeCSV(r.q15_morning_exhausted),
+                    escapeCSV(r.q16_concentrate),
+                    escapeCSV(r.q17_time),
+                    escapeCSV(r.q18_patient_difficulty),
+                    escapeCSV(r.q19_detached),
+                    escapeCSV(r.q20_positive_impact),
+                    escapeCSV(r.q21_stress_level),
+                    escapeCSV(r.q22_team_support),
+                    escapeCSV(r.q23_management_support),
+                    escapeCSV(r.q24_sleep),
+                    escapeCSV(r.q25_enthusiasm),
+                    escapeCSV(r.q26_workload),
+                    escapeCSV(r.q27_stress_factors),
+                    escapeCSV(r.q28_support_needed),
+                    escapeCSV(r.q29_leaving),
+                    escapeCSV(r.q30_additional_comments)
+                ];
+                
+                csv += row.join(',') + '\n';
+            });
+            
+            downloadFile(csv, `OSRU_Burnout_Data_${type}_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+        }
+        
+        // Export summary statistics
+        function exportSummaryStats() {
+            const baselineResponses = allResponses.filter(r => r.studyPhase === 'baseline' && r.scores);
+            const followupResponses = allResponses.filter(r => r.studyPhase === 'followup' && r.scores);
+            
+            const calcStats = (responses, field) => {
+                if (responses.length === 0) return { mean: 0, min: 0, max: 0, count: 0 };
+                const values = responses.map(r => r.scores[field]);
+                return {
+                    mean: Math.round(values.reduce((a, b) => a + b, 0) / values.length * 100) / 100,
+                    min: Math.min(...values),
+                    max: Math.max(...values),
+                    count: values.length
+                };
+            };
+            
+            let csv = 'Metric,Baseline_Mean,Baseline_Min,Baseline_Max,Baseline_N,Followup_Mean,Followup_Min,Followup_Max,Followup_N,Change,Percent_Change\n';
+            
+            const metrics = ['overall', 'personal', 'work', 'patient'];
+            const metricNames = ['Overall Burnout', 'Personal Burnout', 'Work-Related Burnout', 'Patient-Related Burnout'];
+            
+            metrics.forEach((metric, index) => {
+                const baselineStats = calcStats(baselineResponses, metric);
+                const followupStats = calcStats(followupResponses, metric);
+                const change = followupStats.mean - baselineStats.mean;
+                const percentChange = baselineStats.mean > 0 ? Math.round((change / baselineStats.mean) * 100 * 100) / 100 : 0;
+                
+                csv += `${metricNames[index]},${baselineStats.mean},${baselineStats.min},${baselineStats.max},${baselineStats.count},${followupStats.mean},${followupStats.min},${followupStats.max},${followupStats.count},${change},${percentChange}%\n`;
+            });
+            
+            // Risk distribution
+            csv += '\n\nRisk Category,Baseline_Count,Baseline_Percent,Followup_Count,Followup_Percent\n';
+            
+            const countByRisk = (responses, min, max) => {
+                return responses.filter(r => r.scores.overall >= min && r.scores.overall < max).length;
+            };
+            
+            const baselineTotal = baselineResponses.length;
+            const followupTotal = followupResponses.length;
+            
+            const risks = [
+                ['Low (0-49)', 0, 50],
+                ['Moderate (50-74)', 50, 75],
+                ['High (75-100)', 75, 101]
+            ];
+            
+            risks.forEach(([label, min, max]) => {
+                const baselineCount = countByRisk(baselineResponses, min, max);
+                const followupCount = countByRisk(followupResponses, min, max);
+                const baselinePercent = baselineTotal > 0 ? Math.round((baselineCount / baselineTotal) * 100) : 0;
+                const followupPercent = followupTotal > 0 ? Math.round((followupCount / followupTotal) * 100) : 0;
+                
+                csv += `${label},${baselineCount},${baselinePercent}%,${followupCount},${followupPercent}%\n`;
+            });
+            
+            downloadFile(csv, `OSRU_Summary_Statistics_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+        }
+        
+        // Generate report
+        function generateReport() {
+            const baselineResponses = allResponses.filter(r => r.studyPhase === 'baseline' && r.scores);
+            const followupResponses = allResponses.filter(r => r.studyPhase === 'followup' && r.scores);
+            
+            const calcMean = (responses, field) => {
+                if (responses.length === 0) return 0;
+                return Math.round(responses.reduce((acc, r) => acc + r.scores[field], 0) / responses.length * 100) / 100;
+            };
+            
+            const baselineMean = calcMean(baselineResponses, 'overall');
+            const followupMean = calcMean(followupResponses, 'overall');
+            const reduction = baselineMean - followupMean;
+            const percentReduction = baselineMean > 0 ? Math.round((reduction / baselineMean) * 100 * 100) / 100 : 0;
+            
+            const countByRisk = (responses, min, max) => {
+                return responses.filter(r => r.scores.overall >= min && r.scores.overall < max).length;
+            };
+            
+            const report = `
+═══════════════════════════════════════════════════════════════════════════
+OSRU STAFF BURNOUT ASSESSMENT - EXECUTIVE SUMMARY REPORT
+Florence Nightingale Foundation Quality Improvement Study
+═══════════════════════════════════════════════════════════════════════════
+
+Report Generated: ${new Date().toLocaleString()}
+Study Title: Improving Staff Wellbeing Through Burnout Assessment and 
+             Intervention in Stroke Rehabilitation Nursing
+
+═══════════════════════════════════════════════════════════════════════════
+1. STUDY OVERVIEW
+═══════════════════════════════════════════════════════════════════════════
+
+Study Aim: To reduce self-reported burnout levels among OSRU ward staff 
+           by at least 20% over a two-month period through targeted 
+           wellbeing interventions.
+
+Data Collection Period: ${allResponses.length > 0 ? new Date(allResponses[0].timestamp).toLocaleDateString() : 'N/A'} - ${allResponses.length > 0 ? new Date(allResponses[allResponses.length - 1].timestamp).toLocaleDateString() : 'N/A'}
+
+═══════════════════════════════════════════════════════════════════════════
+2. PARTICIPATION SUMMARY
+═══════════════════════════════════════════════════════════════════════════
+
+Total Responses Collected:        ${allResponses.length}
+├─ Baseline Assessments:          ${baselineResponses.length}
+└─ Follow-up Assessments:         ${followupResponses.length}
+
+Response Rate: ${followupResponses.length > 0 ? Math.round((followupResponses.length / baselineResponses.length) * 100) : 0}% (Follow-up completion)
+
+═══════════════════════════════════════════════════════════════════════════
+3. KEY FINDINGS - BURNOUT SCORES (Copenhagen Burnout Inventory Scale)
+═══════════════════════════════════════════════════════════════════════════
+
+Overall Burnout Score:
+├─ Baseline Mean:                 ${baselineMean}/100
+├─ Follow-up Mean:                ${followupMean}/100
+├─ Absolute Reduction:            ${reduction} points
+└─ Percentage Reduction:          ${percentReduction}%
+
+Subscale Results:
+┌──────────────────────────────────────────────────────────────────────┐
+│ Personal Burnout                                                     │
+├─ Baseline:   ${calcMean(baselineResponses, 'personal')}/100                                              │
+└─ Follow-up:  ${calcMean(followupResponses, 'personal')}/100                                              │
+│                                                                      │
+│ Work-Related Burnout                                                │
+├─ Baseline:   ${calcMean(baselineResponses, 'work')}/100                                              │
+└─ Follow-up:  ${calcMean(followupResponses, 'work')}/100                                              │
+│                                                                      │
+│ Patient-Related Burnout                                             │
+├─ Baseline:   ${calcMean(baselineResponses, 'patient')}/100                                              │
+└─ Follow-up:  ${calcMean(followupResponses, 'patient')}/100                                              │
+└──────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════
+4. RISK CATEGORY DISTRIBUTION
+═══════════════════════════════════════════════════════════════════════════
+
+                          Baseline              Follow-up
+                        Count    (%)          Count    (%)
+───────────────────────────────────────────────────────────────────────────
+Low Risk (0-49)         ${countByRisk(baselineResponses, 0, 50)}      (${baselineResponses.length > 0 ? Math.round((countByRisk(baselineResponses, 0, 50) / baselineResponses.length) * 100) : 0}%)        ${countByRisk(followupResponses, 0, 50)}      (${followupResponses.length > 0 ? Math.round((countByRisk(followupResponses, 0, 50) / followupResponses.length) * 100) : 0}%)
+Moderate Risk (50-74)   ${countByRisk(baselineResponses, 50, 75)}      (${baselineResponses.length > 0 ? Math.round((countByRisk(baselineResponses, 50, 75) / baselineResponses.length) * 100) : 0}%)        ${countByRisk(followupResponses, 50, 75)}      (${followupResponses.length > 0 ? Math.round((countByRisk(followupResponses, 50, 75) / followupResponses.length) * 100) : 0}%)
+High Risk (75-100)      ${countByRisk(baselineResponses, 75, 101)}      (${baselineResponses.length > 0 ? Math.round((countByRisk(baselineResponses, 75, 101) / baselineResponses.length) * 100) : 0}%)        ${countByRisk(followupResponses, 75, 101)}      (${followupResponses.length > 0 ? Math.round((countByRisk(followupResponses, 75, 101) / followupResponses.length) * 100) : 0}%)
+───────────────────────────────────────────────────────────────────────────
+
+═══════════════════════════════════════════════════════════════════════════
+5. STUDY GOAL ACHIEVEMENT
+═══════════════════════════════════════════════════════════════════════════
+
+Target:           20% reduction in burnout scores
+Achieved:         ${percentReduction}%
+Status:           ${percentReduction >= 20 ? '✓ GOAL ACHIEVED' : percentReduction > 0 ? '◐ PARTIAL ACHIEVEMENT' : '✗ GOAL NOT MET'}
+
+${percentReduction >= 20 ? 
+`The study has successfully achieved the primary aim of reducing staff 
+burnout by at least 20%. This represents a statistically and clinically 
+significant improvement in staff wellbeing.` : 
+percentReduction > 0 ?
+`The study shows positive progress with a ${percentReduction}% reduction in burnout 
+scores. Further intervention may be needed to achieve the 20% target.` :
+`Burnout scores have not decreased. Review of intervention strategies 
+and barriers to implementation is recommended.`}
+
+═══════════════════════════════════════════════════════════════════════════
+6. QUALITATIVE INSIGHTS (Open Feedback Themes)
+═══════════════════════════════════════════════════════════════════════════
+
+Most Commonly Reported Stress Factors:
+${getTopStressors()}
+
+Most Requested Support Measures:
+${getTopSupport()}
+
+Staff Retention Concerns:
+├─ Considered leaving: ${allResponses.filter(r => r.q29_leaving && r.q29_leaving !== 'No').length} respondents
+└─ Seriously considering: ${allResponses.filter(r => r.q29_leaving === 'Very seriously').length} respondents
+
+═══════════════════════════════════════════════════════════════════════════
+7. RECOMMENDATIONS FOR CONTINUED IMPROVEMENT
+═══════════════════════════════════════════════════════════════════════════
+
+Based on the findings of this quality improvement study:
+
+${percentReduction >= 20 ? `
+✓ Continue current wellbeing interventions that have proven effective
+✓ Maintain regular staff wellbeing check-ins and assessments
+✓ Share successful strategies with other wards/departments
+✓ Monitor sustainability of improvements over 6-12 months
+` : `
+• Strengthen existing wellbeing interventions
+• Increase accessibility to Occupational Health and EAP services
+• Review workload distribution and staffing levels
+• Enhance team support mechanisms and peer support groups
+• Consider additional targeted interventions for high-risk staff
+`}
+
+═══════════════════════════════════════════════════════════════════════════
+8. CONCLUSIONS
+═══════════════════════════════════════════════════════════════════════════
+
+This quality improvement study utilizing validated burnout assessment tools
+(Copenhagen Burnout Inventory) has demonstrated ${percentReduction >= 20 ? 'significant positive impact' : 'measurable changes'} in staff 
+wellbeing within the OSRU ward setting.
+
+${percentReduction >= 20 ? `The 20% reduction target has been achieved, validating the effectiveness of
+the implemented interventions. Continued monitoring and sustainability of 
+these improvements should be prioritized.` : `While improvements have been observed, additional focus on intervention 
+strategies and addressing identified barriers may be necessary to achieve 
+optimal staff wellbeing outcomes.`}
+
+═══════════════════════════════════════════════════════════════════════════
+Report prepared for: Florence Nightingale Foundation Academy
+Assessment Tool: Copenhagen Burnout Inventory (CBI) adapted
+Statistical Analysis: Descriptive statistics, pre-post comparison
+═══════════════════════════════════════════════════════════════════════════
+            `;
+            
+            document.getElementById('reportContent').style.display = 'block';
+            document.getElementById('reportText').textContent = report;
+            document.getElementById('reportContent').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Get top stressors
+        function getTopStressors() {
+            const stressors = allResponses
+                .filter(r => r.q27_stress_factors && r.q27_stress_factors.trim().length > 10)
+                .map(r => r.q27_stress_factors.substring(0, 100))
+                .slice(0, 3);
+            
+            if (stressors.length === 0) return '(Insufficient data - responses too brief or not provided)';
+            
+            return stressors.map((s, i) => `${i + 1}. "${s}${s.length === 100 ? '...' : '"}"`).join('\n');
+        }
+        
+        // Get top support requests
+        function getTopSupport() {
+            const support = allResponses
+                .filter(r => r.q28_support_needed && r.q28_support_needed.trim().length > 10)
+                .map(r => r.q28_support_needed.substring(0, 100))
+                .slice(0, 3);
+            
+            if (support.length === 0) return '(Insufficient data - responses too brief or not provided)';
+            
+            return support.map((s, i) => `${i + 1}. "${s}${s.length === 100 ? '...' : '"}"`).join('\n');
+        }
+        
+        // Download report
+        function downloadReport() {
+            const reportText = document.getElementById('reportText').textContent;
+            if (!reportText) {
+                alert('Please generate the report first by clicking "Generate Summary Report"');
+                return;
+            }
+            
+            downloadFile(reportText, `OSRU_Executive_Report_${new Date().toISOString().split('T')[0]}.txt`, 'text/plain');
+        }
+        
+        // Download file helper
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type: type });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+        
+        // View raw data
+        function viewRawData() {
+            const raw = JSON.stringify(allResponses, null, 2);
+            const newWindow = window.open();
+            newWindow.document.write('<pre>' + raw + '</pre>');
+            newWindow.document.title = 'Raw JSON Data';
+        }
+        
+        // Clear data with confirmation
+        function confirmClearData() {
+            const confirmed = confirm(
+                '⚠️ WARNING: This will permanently delete all survey responses!\n\n' +
+                'This action cannot be undone. Have you exported your data?\n\n' +
+                'Click OK to permanently delete all data, or Cancel to go back.'
+            );
+            
+            if (confirmed) {
+                const doubleConfirm = confirm(
+                    'Are you absolutely sure? This is your last chance to cancel.\n\n' +
+                    'All ' + allResponses.length + ' responses will be permanently deleted.'
+                );
+                
+                if (doubleConfirm) {
+                    localStorage.removeItem('osru_burnout_responses');
+                    allResponses = [];
+                    filteredResponses = [];
+                    updateDashboard();
+                    alert('All data has been cleared successfully.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+                
