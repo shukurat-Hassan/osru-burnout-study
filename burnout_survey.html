@@ -1667,7 +1667,7 @@
             console.log('Participant Code:', participantCode);
             
             // Send to Google Sheets
-if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbxHtJRZBGf1390sZnXVdDwhsPPmzzbZEQQEMyNtoaNctkccROUkJy3MakFiDf4_UJFc/exec') {
+if (GOOGLE_SCRIPT_URL) {
   console.log('📤 Sending to Google Sheets...');
   fetch(GOOGLE_SCRIPT_URL, {
     method: 'POST',
