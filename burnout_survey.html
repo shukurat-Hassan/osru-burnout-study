@@ -1667,23 +1667,23 @@
             console.log('Participant Code:', participantCode);
             
             // Send to Google Sheets
-            if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbxHtJRZBGf1390sZnXVdDwhsPPmzzbZEQQEMyNtoaNctkccROUkJy3MakFiDf4_UJFc/exec') {
-                console.log('📤 Sending to Google Sheets...');
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                })
-                .then(() => {
-                    console.log('✅ Data sent to Google Sheets successfully!');
-                })
-                .catch(error => {
-                    console.error('❌ Error sending to Google Sheets:', error);
-                    console.log('⚠️ Data is saved in localStorage as backup');
-                });
-            } else {
-                console.warn('⚠️ Google Sheets URL not configured. Data saved locally only.');
+if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbxHtJRZBGf1390sZnXVdDwhsPPmzzbZEQQEMyNtoaNctkccROUkJy3MakFiDf4_UJFc/exec') {
+  console.log('📤 Sending to Google Sheets...');
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(() => {
+    console.log('✅ Data sent to Google Sheets successfully!');
+  })
+  .catch(error => {
+    console.error('❌ Error sending to Google Sheets:', error);
+    console.log('⚠️ Data is saved in localStorage as backup');
+  });
+} else {
+  console.warn('⚠️ Google Sheets URL not configured. Data saved locally only.');
             }
             
             displayResults(scores, data);
