@@ -1287,7 +1287,7 @@
 
     <script>
         // ⚠️ IMPORTANT: Replace with your Google Apps Script Web App URL
-        const GOOGLE_SCRIPT_URL = 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHtJRZBGf1390sZnXVdDwhsPPmzzbZEQQEMyNtoaNctkccROUkJy3MakFiDf4_UJFc/exec';
         
         let currentPage = 1;
         const totalPages = 7;
@@ -1667,7 +1667,7 @@
             console.log('Participant Code:', participantCode);
             
             // Send to Google Sheets
-            if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
+            if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbxHtJRZBGf1390sZnXVdDwhsPPmzzbZEQQEMyNtoaNctkccROUkJy3MakFiDf4_UJFc/exec') {
                 console.log('📤 Sending to Google Sheets...');
                 fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
